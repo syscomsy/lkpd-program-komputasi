@@ -1,0 +1,1380 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LKPD Interaktif - Program Komputasi C++ | SMKN 3 Sibolga</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Fira+Code:wght@400;500;600&display=swap" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#f0f7ff',
+                            100: '#e0effe',
+                            500: '#0284c7',
+                            600: '#0284c7',
+                            700: '#0369a1',
+                            800: '#075985',
+                            900: '#0c4a6e',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Plus Jakarta Sans', 'sans-serif'],
+                        mono: ['Fira Code', 'monospace']
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #0f172a;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #334155;
+            border-radius: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: #475569;
+        }
+    </style>
+</head>
+<body class="bg-slate-900 text-slate-100 font-sans min-h-screen flex flex-col antialiased selection:bg-sky-500 selection:text-white">
+
+    <!-- Top Header Navigation Bar -->
+    <header class="bg-slate-800/90 backdrop-blur-md border-b border-slate-700/80 sticky top-0 z-40">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex flex-wrap justify-between items-center gap-3">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-sky-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-sky-500/20 font-bold text-white text-xl">
+                    <i class="fa-solid fa-code"></i>
+                </div>
+                <div>
+                    <h1 class="text-base font-bold tracking-tight text-white flex items-center gap-2">
+                        LKPD Interaktif C++ & Algoritma
+                        <span class="bg-sky-500/20 text-sky-400 text-xs px-2.5 py-0.5 rounded-full border border-sky-500/30 font-medium">SMK Negeri 3 Sibolga</span>
+                    </h1>
+                    <p class="text-xs text-slate-400 flex items-center gap-2">
+                        <span><i class="fa-solid fa-user-tie text-xs mr-1 text-sky-400"></i>Guru Pengampu: Syofyan Dinata, S. Kom</span>
+                    </p>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-3">
+                <!-- Session Indicator -->
+                <div id="studentSessionBadge" class="hidden items-center gap-2 bg-slate-700/50 px-3 py-1.5 rounded-lg border border-slate-600/50">
+                    <i class="fa-solid fa-user-circle text-sky-400 text-sm"></i>
+                    <span id="badgeStudentName" class="text-xs font-semibold text-slate-200">Nama Siswa</span>
+                    <span id="badgeStudentClass" class="text-[10px] bg-slate-800 text-sky-300 font-mono px-2 py-0.5 rounded border border-slate-700">KELAS</span>
+                    <button onclick="logoutStudent()" class="text-xs text-rose-400 hover:text-rose-300 ml-2 border-l border-slate-600 pl-2" title="Keluar">
+                        <i class="fa-solid fa-right-from-bracket"></i>
+                    </button>
+                </div>
+
+                <!-- Teacher Dashboard Trigger -->
+                <button onclick="openTeacherModal()" class="px-3.5 py-1.5 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white rounded-lg text-xs font-semibold shadow-md transition flex items-center gap-2 border border-emerald-500/30">
+                    <i class="fa-solid fa-user-shield"></i>
+                    <span>Dasbor Guru</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-8">
+
+        <!-- SECTION 1: LOGIN MODAL / CARD IF NOT LOGGED IN -->
+        <div id="loginSection" class="max-w-md mx-auto my-12 bg-slate-800/90 rounded-2xl p-6 sm:p-8 border border-slate-700 shadow-2xl relative overflow-hidden backdrop-blur-xl">
+            <div class="absolute -top-12 -right-12 w-32 h-32 bg-sky-500/10 rounded-full blur-2xl"></div>
+            <div class="text-center mb-6">
+                <div class="inline-flex p-3 bg-sky-500/10 rounded-2xl text-sky-400 mb-3 border border-sky-500/20">
+                    <i class="fa-solid fa-graduation-cap text-3xl"></i>
+                </div>
+                <h2 class="text-2xl font-bold text-white">Login Lembar Kerja Siswa</h2>
+                <p class="text-sm text-slate-400 mt-1">Masukkan Nama Lengkap & Pilih Kelas untuk Memulai Pembelajaran</p>
+            </div>
+
+            <form id="loginForm" onsubmit="handleStudentLogin(event)" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-medium text-slate-300 mb-1">Nama Lengkap Siswa</label>
+                    <div class="relative">
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400">
+                            <i class="fa-solid fa-user"></i>
+                        </span>
+                        <input type="text" id="inputStudentName" required placeholder="Contoh: Budi Santoso" class="w-full bg-slate-900 border border-slate-700 text-white text-sm rounded-xl pl-10 pr-4 py-2.5 focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500 transition">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-medium text-slate-300 mb-1">Pilih Kelas</label>
+                    <div class="relative">
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400">
+                            <i class="fa-solid fa-users"></i>
+                        </span>
+                        <select id="inputStudentClass" required class="w-full bg-slate-900 border border-slate-700 text-white text-sm rounded-xl pl-10 pr-4 py-2.5 focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500 transition appearance-none">
+                            <option value="" disabled selected>-- Pilih Kelas Anda --</option>
+                            <option value="X TKP">X TKP (Teknik Konstruksi & Perumahan)</option>
+                            <option value="X DPIB">X DPIB (Desain Pemodelan & Informasi Bangunan)</option>
+                            <option value="X TITL">X TITL (Teknik Instalasi Tenaga Listrik)</option>
+                            <option value="X TKR1">X TKR1 (Teknik Kendaraan Ringan 1)</option>
+                            <option value="X TKR2">X TKR2 (Teknik Kendaraan Ringan 2)</option>
+                            <option value="X TSM">X TSM (Teknik Sepeda Motor)</option>
+                            <option value="X NKPI">X NKPI (Nautika Kapal Penangkap Ikan)</option>
+                            <option value="X TKPI">X TKPI (Teknika Kapal Penangkap Ikan)</option>
+                            <option value="X APAT">X APAT (Agribisnis Perikanan Air Tawar)</option>
+                            <option value="X APPL">X APPL (Agribisnis Pengolahan Hasil Perikanan)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <button type="submit" class="w-full bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-400 hover:to-blue-500 text-white font-semibold py-3 rounded-xl shadow-lg shadow-sky-500/25 transition transform active:scale-95 flex items-center justify-center gap-2">
+                    <span>Mulai Pengerjaan LKPD</span>
+                    <i class="fa-solid fa-arrow-right"></i>
+                </button>
+            </form>
+        </div>
+
+        <!-- MAIN APP CONTENT AREA (Hidden until student logs in) -->
+        <div id="lkpdMainArea" class="hidden space-y-8">
+            
+            <!-- Banner Intro -->
+            <div class="bg-gradient-to-r from-slate-800 via-sky-950 to-slate-800 border border-sky-500/30 rounded-2xl p-6 relative overflow-hidden shadow-xl">
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 relative z-10">
+                    <div>
+                        <span class="inline-block px-3 py-1 bg-sky-500/20 text-sky-300 text-xs font-semibold rounded-full border border-sky-500/30 mb-2">
+                            Materi Komprehensif Pemrograman C++
+                        </span>
+                        <h2 class="text-2xl font-bold text-white">Lembar Kerja & Modul Komputasi Dasar C++</h2>
+                        <p class="text-sm text-slate-300 mt-1 max-w-3xl">
+                            Pelajari fondasi bahasa C++ (variabel, tipe data, operator, I/O) hingga penerapan praktikum algoritma pemodelan dengan flowchart dan pseudocode.
+                        </p>
+                    </div>
+                    <div class="flex items-center gap-2 bg-slate-900/80 p-3 rounded-xl border border-slate-700/80 text-xs shrink-0">
+                        <i class="fa-solid fa-circle-check text-emerald-400 text-xl"></i>
+                        <div>
+                            <span class="font-semibold text-slate-200 block">Siswa Aktif:</span>
+                            <span id="activeStudentLabel" class="text-sky-400 font-mono">Siswa Login</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Top Level Navigation Category (Basic Theory vs Practical Worksheets) -->
+            <div class="flex border-b border-slate-700/80 gap-2">
+                <button onclick="switchCategory('basicTheory')" id="catBtnTheory" class="px-5 py-3 font-bold text-sm rounded-t-xl transition flex items-center gap-2 border-b-2 border-sky-500 text-sky-400 bg-slate-800/80">
+                    <i class="fa-solid fa-book-open"></i> Modul Materi Dasar C++
+                </button>
+                <button onclick="switchCategory('lkpdPraktikum')" id="catBtnPraktikum" class="px-5 py-3 font-bold text-sm rounded-t-xl transition flex items-center gap-2 border-b-2 border-transparent text-slate-400 hover:text-slate-200 hover:bg-slate-800/40">
+                    <i class="fa-solid fa-laptop-code"></i> LKPD Praktikum & Algoritma
+                </button>
+            </div>
+
+            <!-- ================= CATEGORY 1: MATERI DASAR C++ ================= -->
+            <div id="categoryBasicTheory" class="space-y-6">
+                
+                <!-- Inner Navigation for Theory Sub-topics -->
+                <div class="flex border-b border-slate-800 overflow-x-auto space-x-2 custom-scrollbar pb-1">
+                    <button onclick="switchTheoryTab('structure')" id="theoryTab-structure" class="theory-tab-btn px-4 py-2 rounded-t-lg font-semibold text-xs transition border-b-2 border-sky-400 text-sky-300 bg-slate-800/60 whitespace-nowrap">
+                        1. Struktur C++
+                    </button>
+                    <button onclick="switchTheoryTab('datatypes')" id="theoryTab-datatypes" class="theory-tab-btn px-4 py-2 rounded-t-lg font-semibold text-xs transition border-b-2 border-transparent text-slate-400 hover:text-slate-200 whitespace-nowrap">
+                        2. Tipe Data
+                    </button>
+                    <button onclick="switchTheoryTab('constantsVars')" id="theoryTab-constantsVars" class="theory-tab-btn px-4 py-2 rounded-t-lg font-semibold text-xs transition border-b-2 border-transparent text-slate-400 hover:text-slate-200 whitespace-nowrap">
+                        3. Konstanta & Variabel
+                    </button>
+                    <button onclick="switchTheoryTab('operators')" id="theoryTab-operators" class="theory-tab-btn px-4 py-2 rounded-t-lg font-semibold text-xs transition border-b-2 border-transparent text-slate-400 hover:text-slate-200 whitespace-nowrap">
+                        4. Operator C++
+                    </button>
+                    <button onclick="switchTheoryTab('syntaxIo')" id="theoryTab-syntaxIo" class="theory-tab-btn px-4 py-2 rounded-t-lg font-semibold text-xs transition border-b-2 border-transparent text-slate-400 hover:text-slate-200 whitespace-nowrap">
+                        5. Penulisan Syntax & I/O
+                    </button>
+                </div>
+
+                <!-- Theory 1: Structure C++ -->
+                <div id="theoryContent-structure" class="theory-content space-y-4">
+                    <div class="bg-slate-800/80 border border-slate-700 rounded-2xl p-6 space-y-4">
+                        <h3 class="text-lg font-bold text-sky-400 flex items-center gap-2">
+                            <i class="fa-solid fa-cubes"></i> Struktur Utama Bahasa Pemrograman C++
+                        </h3>
+                        <p class="text-xs text-slate-300 leading-relaxed">
+                            Setiap program C++ terdiri dari beberapa komponen dasar wajib yang menyusun kerangka eksekusi kode. Berikut komponen utamanya:
+                        </p>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+                            <div class="bg-slate-900 p-4 rounded-xl border border-slate-800 space-y-2">
+                                <span class="font-bold text-sky-300 font-mono text-sm block">1. #include &lt;iostream&gt;</span>
+                                <p class="text-slate-300">Header Preprocessor directive yang menyertakan library standar I/O (Input/Output) untuk fungsi seperti <code class="text-amber-300">cout</code> dan <code class="text-amber-300">cin</code>.</p>
+                            </div>
+                            <div class="bg-slate-900 p-4 rounded-xl border border-slate-800 space-y-2">
+                                <span class="font-bold text-sky-300 font-mono text-sm block">2. using namespace std;</span>
+                                <p class="text-slate-300">Memberitahukan kompiler untuk menggunakan ruang lingkup standar (<code class="text-amber-300">std</code>) agar kita tidak perlu menuliskan <code class="text-amber-300">std::cout</code> setiap saat.</p>
+                            </div>
+                            <div class="bg-slate-900 p-4 rounded-xl border border-slate-800 space-y-2">
+                                <span class="font-bold text-sky-300 font-mono text-sm block">3. int main() { ... }</span>
+                                <p class="text-slate-300">Fungsi utama program. Eksekusi kode C++ selalu dimulai pertama kali dari titik awal baris di dalam kurung kurawal fungsi <code class="text-amber-300">main()</code>.</p>
+                            </div>
+                            <div class="bg-slate-900 p-4 rounded-xl border border-slate-800 space-y-2">
+                                <span class="font-bold text-sky-300 font-mono text-sm block">4. Komentar & return 0;</span>
+                                <p class="text-slate-300"><code class="text-amber-300">// Single-line</code> atau <code class="text-amber-300">/* Multi-line */</code> untuk catatan. <code class="text-amber-300">return 0;</code> menandakan program berakhir dengan sukses.</p>
+                            </div>
+                        </div>
+
+                        <!-- Code Example -->
+                        <div class="bg-slate-950 p-4 rounded-xl border border-slate-800">
+                            <div class="flex justify-between items-center mb-2">
+                                <span class="text-xs font-mono text-slate-400">Contoh Struktur C++ Dasar:</span>
+                                <button onclick="loadDirectCode('structure')" class="text-xs text-sky-400 hover:text-sky-300 flex items-center gap-1">
+                                    <i class="fa-solid fa-play"></i> Buka di Live Compiler
+                                </button>
+                            </div>
+                            <pre class="font-mono text-xs text-emerald-400 overflow-x-auto leading-relaxed">
+#include &lt;iostream&gt;  // Header library input-output
+using namespace std; // Namespace standar
+
+// Fungsi utama program C++
+int main() {
+    // Komentar: Menampilkan pesan
+    cout << "Selamat Datang di SMKN 3 Sibolga!" << endl; 
+    
+    return 0; // Mengembalikan nilai status 0 (Sukses)
+}</pre>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Theory 2: Data Types -->
+                <div id="theoryContent-datatypes" class="theory-content hidden space-y-4">
+                    <div class="bg-slate-800/80 border border-slate-700 rounded-2xl p-6 space-y-4">
+                        <h3 class="text-lg font-bold text-sky-400 flex items-center gap-2">
+                            <i class="fa-solid fa-database"></i> Tipe Data Primitif dalam C++
+                        </h3>
+                        <p class="text-xs text-slate-300">
+                            Tipe data menentukan jenis nilai yang dapat disimpan oleh sebuah variabel beserta alokasi ukuran memorinya di RAM:
+                        </p>
+
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-xs text-left text-slate-200 border border-slate-700">
+                                <thead class="bg-slate-900 font-mono text-slate-400 border-b border-slate-700">
+                                    <tr>
+                                        <th class="p-3">Tipe Data</th>
+                                        <th class="p-3">Ukuran Memori</th>
+                                        <th class="p-3">Rentang Nilai / Deskripsi</th>
+                                        <th class="p-3">Contoh Penulisan</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-slate-800 font-mono">
+                                    <tr class="hover:bg-slate-800/50">
+                                        <td class="p-3 font-bold text-sky-400">int</td>
+                                        <td class="p-3">4 Byte (32 bit)</td>
+                                        <td class="p-3">Bilangan bulat (-2,147,483,648 s/d 2,147,483,647)</td>
+                                        <td class="p-3 text-amber-300">int umur = 16;</td>
+                                    </tr>
+                                    <tr class="hover:bg-slate-800/50">
+                                        <td class="p-3 font-bold text-sky-400">float</td>
+                                        <td class="p-3">4 Byte (32 bit)</td>
+                                        <td class="p-3">Bilangan pecahan/desimal (Presisi 6-7 digit)</td>
+                                        <td class="p-3 text-amber-300">float nilai = 85.5f;</td>
+                                    </tr>
+                                    <tr class="hover:bg-slate-800/50">
+                                        <td class="p-3 font-bold text-sky-400">double</td>
+                                        <td class="p-3">8 Byte (64 bit)</td>
+                                        <td class="p-3">Bilangan pecahan desimal presisi tinggi (15 digit)</td>
+                                        <td class="p-3 text-amber-300">double pi = 3.14159265;</td>
+                                    </tr>
+                                    <tr class="hover:bg-slate-800/50">
+                                        <td class="p-3 font-bold text-sky-400">char</td>
+                                        <td class="p-3">1 Byte (8 bit)</td>
+                                        <td class="p-3">Satu karakter tunggal ASCII (diapit tanda kutip tunggal)</td>
+                                        <td class="p-3 text-amber-300">char gred = 'A';</td>
+                                    </tr>
+                                    <tr class="hover:bg-slate-800/50">
+                                        <td class="p-3 font-bold text-sky-400">string</td>
+                                        <td class="p-3">Bervariasi</td>
+                                        <td class="p-3">Kumpulan karakter/teks (diapit tanda kutip ganda)</td>
+                                        <td class="p-3 text-amber-300">string nama = "Ahmad";</td>
+                                    </tr>
+                                    <tr class="hover:bg-slate-800/50">
+                                        <td class="p-3 font-bold text-sky-400">bool</td>
+                                        <td class="p-3">1 Byte</td>
+                                        <td class="p-3">Kondisi logika: <code class="text-emerald-400">true</code> (1) atau <code class="text-rose-400">false</code> (0)</td>
+                                        <td class="p-3 text-amber-300">bool lulus = true;</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Theory 3: Constants & Variables -->
+                <div id="theoryContent-constantsVars" class="theory-content hidden space-y-4">
+                    <div class="bg-slate-800/80 border border-slate-700 rounded-2xl p-6 space-y-4">
+                        <h3 class="text-lg font-bold text-sky-400 flex items-center gap-2">
+                            <i class="fa-solid fa-box-archive"></i> Variabel & Konstanta
+                        </h3>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 text-xs">
+                            <div class="bg-slate-900 p-5 rounded-xl border border-slate-800 space-y-3">
+                                <h4 class="font-bold text-emerald-400 text-sm flex items-center gap-2">
+                                    <i class="fa-solid fa-pen"></i> Variabel
+                                </h4>
+                                <p class="text-slate-300 leading-relaxed">
+                                    Variabel adalah wadah di memori komputer untuk menyimpan data yang nilainya <strong>dapat diubah</strong> selama program berjalan.
+                                </p>
+                                <div class="bg-slate-950 p-3 rounded-lg font-mono text-sky-300 border border-slate-800">
+                                    // Deklarasi & Inisialisasi<br>
+                                    int skor = 100;<br>
+                                    skor = 150; // Nilai berubah
+                                </div>
+                                <ul class="list-disc list-inside text-slate-400 space-y-1">
+                                    <li>Tidak boleh diawali angka.</li>
+                                    <li>Sensitif terhadap huruf besar/kecil (Case Sensitive).</li>
+                                    <li>Tidak boleh memakai spasi atau kata kunci C++ (seperti <code class="text-amber-300">int</code>).</li>
+                                </ul>
+                            </div>
+
+                            <div class="bg-slate-900 p-5 rounded-xl border border-slate-800 space-y-3">
+                                <h4 class="font-bold text-amber-400 text-sm flex items-center gap-2">
+                                    <i class="fa-solid fa-lock"></i> Konstanta
+                                </h4>
+                                <p class="text-slate-300 leading-relaxed">
+                                    Konstanta menyimpan nilai tetap yang <strong>tidak dapat diubah</strong> setelah ditetapkan.
+                                </p>
+                                <div class="bg-slate-950 p-3 rounded-lg font-mono text-amber-300 border border-slate-800">
+                                    // Cara 1: Menggunakan const<br>
+                                    const float PI = 3.14159;<br><br>
+                                    // Cara 2: Menggunakan #define<br>
+                                    #define HARGA_POKOK 50000
+                                </div>
+                                <p class="text-slate-400">
+                                    Mencoba mengubah nilai <code class="text-amber-300">const</code> akan menyebabkan error kompilasi!
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Theory 4: Operators -->
+                <div id="theoryContent-operators" class="theory-content hidden space-y-4">
+                    <div class="bg-slate-800/80 border border-slate-700 rounded-2xl p-6 space-y-4">
+                        <h3 class="text-lg font-bold text-sky-400 flex items-center gap-2">
+                            <i class="fa-solid fa-calculator"></i> Jenis-Jenis Operator C++
+                        </h3>
+
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
+                            <!-- Aritmatika -->
+                            <div class="bg-slate-900 p-4 rounded-xl border border-slate-800 space-y-2">
+                                <h4 class="font-bold text-sky-300 border-b border-slate-800 pb-2">1. Operator Aritmatika</h4>
+                                <ul class="font-mono space-y-1 text-slate-300">
+                                    <li><code class="text-amber-300">+</code> Penjumlahan (a + b)</li>
+                                    <li><code class="text-amber-300">-</code> Pengurangan (a - b)</li>
+                                    <li><code class="text-amber-300">*</code> Perkalian (a * b)</li>
+                                    <li><code class="text-amber-300">/</code> Pembagian (a / b)</li>
+                                    <li><code class="text-amber-300">%</code> Sisa Bagi / Modulo (a % b)</li>
+                                </ul>
+                            </div>
+
+                            <!-- Relasional/Perbandingan -->
+                            <div class="bg-slate-900 p-4 rounded-xl border border-slate-800 space-y-2">
+                                <h4 class="font-bold text-emerald-300 border-b border-slate-800 pb-2">2. Operator Perbandingan</h4>
+                                <ul class="font-mono space-y-1 text-slate-300">
+                                    <li><code class="text-amber-300">==</code> Sama dengan</li>
+                                    <li><code class="text-amber-300">!=</code> Tidak sama dengan</li>
+                                    <li><code class="text-amber-300">></code> Lebih besar dari</li>
+                                    <li><code class="text-amber-300"><</code> Lebih kecil dari</li>
+                                    <li><code class="text-amber-300">>=</code> Lebih besar sama dengan</li>
+                                </ul>
+                            </div>
+
+                            <!-- Logika & Increment -->
+                            <div class="bg-slate-900 p-4 rounded-xl border border-slate-800 space-y-2">
+                                <h4 class="font-bold text-purple-300 border-b border-slate-800 pb-2">3. Operator Logika & Increment</h4>
+                                <ul class="font-mono space-y-1 text-slate-300">
+                                    <li><code class="text-amber-300">&&</code> AND Logika</li>
+                                    <li><code class="text-amber-300">||</code> OR Logika</li>
+                                    <li><code class="text-amber-300">!</code> NOT (Negasi)</li>
+                                    <li><code class="text-amber-300">++</code> Increment (+1)</li>
+                                    <li><code class="text-amber-300">--</code> Decrement (-1)</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Theory 5: Syntax & IO -->
+                <div id="theoryContent-syntaxIo" class="theory-content hidden space-y-4">
+                    <div class="bg-slate-800/80 border border-slate-700 rounded-2xl p-6 space-y-4">
+                        <h3 class="text-lg font-bold text-sky-400 flex items-center gap-2">
+                            <i class="fa-solid fa-terminal"></i> Syntax Input/Output & Escape Characters
+                        </h3>
+
+                        <p class="text-xs text-slate-300 leading-relaxed">
+                            C++ menggunakan stream <code class="text-sky-300">cout &lt;&lt;</code> untuk mencetak ke layar monitor dan <code class="text-sky-300">cin &gt;&gt;</code> untuk menerima masukan keyboard pengguna.
+                        </p>
+
+                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 text-xs">
+                            <div class="bg-slate-900 p-4 rounded-xl border border-slate-800 space-y-3">
+                                <h4 class="font-bold text-amber-300 text-sm">Karakter Escape Umum (\)</h4>
+                                <ul class="font-mono space-y-2 text-slate-300">
+                                    <li class="flex items-center justify-between border-b border-slate-800 pb-1">
+                                        <code class="text-sky-400">\n</code> <span>Baris Baru (Newline)</span>
+                                    </li>
+                                    <li class="flex items-center justify-between border-b border-slate-800 pb-1">
+                                        <code class="text-sky-400">\t</code> <span>Tabulasi Horizontal</span>
+                                    </li>
+                                    <li class="flex items-center justify-between border-b border-slate-800 pb-1">
+                                        <code class="text-sky-400">\\</code> <span>Mencetak Garis Miring (\)</span>
+                                    </li>
+                                    <li class="flex items-center justify-between border-b border-slate-800 pb-1">
+                                        <code class="text-sky-400">\"</code> <span>Mencetak Tanda Kutip Ganda</span>
+                                    </li>
+                                </ul>
+                            </div>
+
+                            <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 flex flex-col justify-between">
+                                <div>
+                                    <span class="text-xs font-mono text-slate-400 block mb-2">Penjelasan Baris per Baris:</span>
+                                    <pre class="font-mono text-xs text-sky-300 overflow-x-auto leading-relaxed">
+int umur; 
+cout << "Masukkan umur Anda: ";
+cin >> umur; // Membaca input keyboard
+cout << "Umur Anda: " << umur << "\ttahun\n";</pre>
+                                </div>
+                                <button onclick="loadDirectCode('syntaxIo')" class="mt-4 bg-sky-600 hover:bg-sky-500 text-white font-semibold py-2 px-3 rounded-lg text-xs transition self-end flex items-center gap-1.5">
+                                    <i class="fa-solid fa-code"></i> Coba Kode Ini
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- ================= CATEGORY 2: LKPD PRAKTIKUM & ALGORITMA ================= -->
+            <div id="categoryLKPD" class="hidden space-y-6">
+                
+                <!-- Tab Navigation for Topics -->
+                <div class="flex border-b border-slate-700 overflow-x-auto space-x-2 custom-scrollbar pb-1">
+                    <button onclick="switchTab('topic1')" id="tab-topic1" class="tab-btn px-4 py-2.5 rounded-t-xl font-semibold text-sm transition flex items-center gap-2 border-b-2 border-sky-500 text-sky-400 bg-slate-800/80 whitespace-nowrap">
+                        <i class="fa-solid fa-calculator"></i> 1. Perhitungan Bilangan
+                    </button>
+                    <button onclick="switchTab('topic2')" id="tab-topic2" class="tab-btn px-4 py-2.5 rounded-t-xl font-semibold text-sm transition flex items-center gap-2 border-b-2 border-transparent text-slate-400 hover:text-slate-200 hover:bg-slate-800/40 whitespace-nowrap">
+                        <i class="fa-solid fa-list-ol"></i> 2. Deretan Angka
+                    </button>
+                    <button onclick="switchTab('topic3')" id="tab-topic3" class="tab-btn px-4 py-2.5 rounded-t-xl font-semibold text-sm transition flex items-center gap-2 border-b-2 border-transparent text-slate-400 hover:text-slate-200 hover:bg-slate-800/40 whitespace-nowrap">
+                        <i class="fa-solid fa-arrows-spin"></i> 3. Perulangan (Looping)
+                    </button>
+                    <button onclick="switchTab('topic4')" id="tab-topic4" class="tab-btn px-4 py-2.5 rounded-t-xl font-semibold text-sm transition flex items-center gap-2 border-b-2 border-transparent text-slate-400 hover:text-slate-200 hover:bg-slate-800/40 whitespace-nowrap">
+                        <i class="fa-solid fa-cube"></i> 4. Bangun Ruang (Balok & Tabung)
+                    </button>
+                </div>
+
+                <!-- TOPIC 1: PERHITUNGAN BILANGAN -->
+                <div id="content-topic1" class="topic-content space-y-6">
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <!-- Algoritma, Flowchart & Pseudocode -->
+                        <div class="bg-slate-800/90 border border-slate-700 rounded-2xl p-5 space-y-4">
+                            <div class="flex justify-between items-center border-b border-slate-700/80 pb-3">
+                                <h3 class="font-bold text-lg text-sky-400 flex items-center gap-2">
+                                    <i class="fa-solid fa-diagram-project"></i> Flowchart & Pseudocode
+                                </h3>
+                                <span class="text-xs bg-slate-700 text-slate-300 px-2 py-1 rounded">Topik 1: Penjumlahan & Perkalian</span>
+                            </div>
+
+                            <div>
+                                <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Pseudocode:</p>
+                                <pre class="bg-slate-950 text-emerald-400 font-mono text-xs p-3.5 rounded-xl border border-slate-800 leading-relaxed overflow-x-auto">
+PROGRAM Perhitungan_Dua_Bilangan
+DEKLARASI:
+    a, b, hasilJumlah, hasilKali : INTEGER
+ALGORITMA:
+    INPUT a
+    INPUT b
+    hasilJumlah <- a + b
+    hasilKali <- a * b
+    OUTPUT "Hasil Penjumlahan: ", hasilJumlah
+    OUTPUT "Hasil Perkalian: ", hasilKali
+END PROGRAM</pre>
+                            </div>
+
+                            <div>
+                                <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Flowchart Visual:</p>
+                                <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 flex justify-center overflow-x-auto">
+                                    <svg width="280" height="340" viewBox="0 0 280 340" class="text-slate-200 font-sans text-xs">
+                                        <rect x="90" y="10" width="100" height="30" rx="15" fill="#0284c7" stroke="#38bdf8" stroke-width="2"/>
+                                        <text x="140" y="30" text-anchor="middle" fill="#ffffff" font-weight="bold">Mulai</text>
+                                        <line x1="140" y1="40" x2="140" y2="60" stroke="#94a3b8" stroke-width="2"/>
+                                        
+                                        <polygon points="80,60 210,60 190,90 60,90" fill="#334155" stroke="#38bdf8" stroke-width="2"/>
+                                        <text x="135" y="80" text-anchor="middle" fill="#ffffff">Input Bil 1 (a) & Bil 2 (b)</text>
+                                        <line x1="140" y1="90" x2="140" y2="110" stroke="#94a3b8" stroke-width="2"/>
+                                        
+                                        <rect x="60" y="110" width="160" height="35" rx="5" fill="#1e293b" stroke="#38bdf8" stroke-width="2"/>
+                                        <text x="140" y="132" text-anchor="middle" fill="#ffffff">hasilJumlah = a + b</text>
+                                        <line x1="140" y1="145" x2="140" y2="165" stroke="#94a3b8" stroke-width="2"/>
+
+                                        <rect x="60" y="165" width="160" height="35" rx="5" fill="#1e293b" stroke="#38bdf8" stroke-width="2"/>
+                                        <text x="140" y="187" text-anchor="middle" fill="#ffffff">hasilKali = a * b</text>
+                                        <line x1="140" y1="200" x2="140" y2="220" stroke="#94a3b8" stroke-width="2"/>
+
+                                        <polygon points="80,220 210,220 190,250 60,250" fill="#334155" stroke="#38bdf8" stroke-width="2"/>
+                                        <text x="135" y="240" text-anchor="middle" fill="#ffffff">Cetak hasilJumlah & hasilKali</text>
+                                        <line x1="140" y1="250" x2="140" y2="270" stroke="#94a3b8" stroke-width="2"/>
+
+                                        <rect x="90" y="270" width="100" height="30" rx="15" fill="#e11d48" stroke="#fda4af" stroke-width="2"/>
+                                        <text x="140" y="290" text-anchor="middle" fill="#ffffff" font-weight="bold">Selesai</text>
+                                    </svg>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Kode C++ & Quiz -->
+                        <div class="bg-slate-800/90 border border-slate-700 rounded-2xl p-5 space-y-4 flex flex-col justify-between">
+                            <div>
+                                <div class="flex justify-between items-center border-b border-slate-700/80 pb-3 mb-4">
+                                    <h3 class="font-bold text-lg text-sky-400 flex items-center gap-2">
+                                        <i class="fa-solid fa-code"></i> Implementasi C++
+                                    </h3>
+                                    <button onclick="loadTemplateIntoCompiler('topic1')" class="text-xs bg-sky-600/30 hover:bg-sky-600/50 text-sky-300 border border-sky-500/40 px-3 py-1 rounded-lg transition flex items-center gap-1.5">
+                                        <i class="fa-solid fa-terminal"></i> Muat ke Compiler
+                                    </button>
+                                </div>
+
+                                <pre class="bg-slate-950 text-sky-300 font-mono text-xs p-3.5 rounded-xl border border-slate-800 leading-relaxed overflow-x-auto">
+#include &lt;iostream&gt;
+using namespace std;
+
+int main() {
+    int a = 12, b = 5;
+    int hasilJumlah = a + b;
+    int hasilKali = a * b;
+
+    cout << "=== PERHITUNGAN BILANGAN ===" << endl;
+    cout << "Bilangan A : " << a << endl;
+    cout << "Bilangan B : " << b << endl;
+    cout << "Hasil Penjumlahan: " << hasilJumlah << endl;
+    cout << "Hasil Perkalian  : " << hasilKali << endl;
+
+    return 0;
+}</pre>
+                            </div>
+
+                            <div class="bg-slate-900/90 p-4 rounded-xl border border-slate-700 space-y-3">
+                                <span class="text-xs font-bold text-amber-400 uppercase tracking-wide flex items-center gap-1">
+                                    <i class="fa-solid fa-pen-to-square"></i> Soal Latihan Topik 1
+                                </span>
+                                <p class="text-xs text-slate-200">
+                                    Jika nilai <code class="text-sky-300">a = 15</code> dan <code class="text-sky-300">b = 4</code>, berapakah nilai perkalian (<code class="text-emerald-400">a * b</code>)?
+                                </p>
+                                <div class="flex gap-2">
+                                    <input type="number" id="quizAns1" placeholder="Jawaban..." class="bg-slate-950 text-white text-xs px-3 py-2 rounded-lg border border-slate-700 w-full focus:outline-none focus:border-sky-500">
+                                    <button onclick="checkQuiz('topic1', 60)" class="bg-sky-600 hover:bg-sky-500 text-white text-xs px-4 py-2 rounded-lg font-semibold transition">Kirim</button>
+                                </div>
+                                <div id="quizResult1" class="text-xs font-semibold hidden"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TOPIC 2: DERETAN ANGKA -->
+                <div id="content-topic2" class="topic-content hidden space-y-6">
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <div class="bg-slate-800/90 border border-slate-700 rounded-2xl p-5 space-y-4">
+                            <div class="flex justify-between items-center border-b border-slate-700/80 pb-3">
+                                <h3 class="font-bold text-lg text-sky-400 flex items-center gap-2">
+                                    <i class="fa-solid fa-diagram-project"></i> Flowchart & Pseudocode
+                                </h3>
+                                <span class="text-xs bg-slate-700 text-slate-300 px-2 py-1 rounded">Topik 2: Deret Genap</span>
+                            </div>
+
+                            <div>
+                                <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Pseudocode:</p>
+                                <pre class="bg-slate-950 text-emerald-400 font-mono text-xs p-3.5 rounded-xl border border-slate-800 leading-relaxed overflow-x-auto">
+PROGRAM Deret_Angka_Genap
+DEKLARASI:
+    i, n : INTEGER
+ALGORITMA:
+    n <- 10
+    FOR i <- 2 TO n STEP 2 DO
+        OUTPUT i
+    END FOR
+END PROGRAM</pre>
+                            </div>
+
+                            <div>
+                                <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Flowchart Visual:</p>
+                                <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 flex justify-center overflow-x-auto">
+                                    <svg width="280" height="300" viewBox="0 0 280 300" class="text-slate-200 font-sans text-xs">
+                                        <rect x="90" y="10" width="100" height="30" rx="15" fill="#0284c7" stroke="#38bdf8" stroke-width="2"/>
+                                        <text x="140" y="30" text-anchor="middle" fill="#ffffff" font-weight="bold">Mulai</text>
+                                        <line x1="140" y1="40" x2="140" y2="60" stroke="#94a3b8" stroke-width="2"/>
+                                        
+                                        <rect x="60" y="60" width="160" height="35" rx="5" fill="#1e293b" stroke="#38bdf8" stroke-width="2"/>
+                                        <text x="140" y="82" text-anchor="middle" fill="#ffffff">i = 2, max = 10</text>
+                                        <line x1="140" y1="95" x2="140" y2="115" stroke="#94a3b8" stroke-width="2"/>
+
+                                        <polygon points="140,115 210,145 140,175 70,145" fill="#0284c7" stroke="#38bdf8" stroke-width="2"/>
+                                        <text x="140" y="149" text-anchor="middle" fill="#ffffff">i <= max ?</text>
+                                        
+                                        <line x1="140" y1="175" x2="140" y2="205" stroke="#94a3b8" stroke-width="2"/>
+                                        <text x="150" y="190" fill="#4ade80" font-weight="bold">Ya</text>
+
+                                        <polygon points="80,205 200,205 180,235 60,235" fill="#334155" stroke="#38bdf8" stroke-width="2"/>
+                                        <text x="130" y="224" text-anchor="middle" fill="#ffffff">Cetak i; i += 2</text>
+                                        
+                                        <path d="M 60 220 L 30 220 L 30 145 L 70 145" fill="none" stroke="#94a3b8" stroke-width="2"/>
+
+                                        <line x1="210" y1="145" x2="250" y2="145" stroke="#94a3b8" stroke-width="2"/>
+                                        <line x1="250" y1="145" x2="250" y2="270" stroke="#94a3b8" stroke-width="2"/>
+                                        <line x1="250" y1="270" x2="190" y2="270" stroke="#94a3b8" stroke-width="2"/>
+                                        <text x="220" y="138" fill="#f87171" font-weight="bold">Tidak</text>
+
+                                        <rect x="90" y="255" width="100" height="30" rx="15" fill="#e11d48" stroke="#fda4af" stroke-width="2"/>
+                                        <text x="140" y="275" text-anchor="middle" fill="#ffffff" font-weight="bold">Selesai</text>
+                                    </svg>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-slate-800/90 border border-slate-700 rounded-2xl p-5 space-y-4 flex flex-col justify-between">
+                            <div>
+                                <div class="flex justify-between items-center border-b border-slate-700/80 pb-3 mb-4">
+                                    <h3 class="font-bold text-lg text-sky-400 flex items-center gap-2">
+                                        <i class="fa-solid fa-code"></i> Implementasi C++
+                                    </h3>
+                                    <button onclick="loadTemplateIntoCompiler('topic2')" class="text-xs bg-sky-600/30 hover:bg-sky-600/50 text-sky-300 border border-sky-500/40 px-3 py-1 rounded-lg transition flex items-center gap-1.5">
+                                        <i class="fa-solid fa-terminal"></i> Muat ke Compiler
+                                    </button>
+                                </div>
+
+                                <pre class="bg-slate-950 text-sky-300 font-mono text-xs p-3.5 rounded-xl border border-slate-800 leading-relaxed overflow-x-auto">
+#include &lt;iostream&gt;
+using namespace std;
+
+int main() {
+    cout << "=== DERET ANGKA GENAP (2 - 10) ===" << endl;
+    for(int i = 2; i <= 10; i += 2) {
+        cout << i << " ";
+    }
+    cout << endl;
+    return 0;
+}</pre>
+                            </div>
+
+                            <div class="bg-slate-900/90 p-4 rounded-xl border border-slate-700 space-y-3">
+                                <span class="text-xs font-bold text-amber-400 uppercase tracking-wide flex items-center gap-1">
+                                    <i class="fa-solid fa-pen-to-square"></i> Soal Latihan Topik 2
+                                </span>
+                                <p class="text-xs text-slate-200">
+                                    Berapakah jumlah total seluruh angka pada deret genap dari 2 sampai 10 di atas (2 + 4 + 6 + 8 + 10)?
+                                </p>
+                                <div class="flex gap-2">
+                                    <input type="number" id="quizAns2" placeholder="Jawaban..." class="bg-slate-950 text-white text-xs px-3 py-2 rounded-lg border border-slate-700 w-full focus:outline-none focus:border-sky-500">
+                                    <button onclick="checkQuiz('topic2', 30)" class="bg-sky-600 hover:bg-sky-500 text-white text-xs px-4 py-2 rounded-lg font-semibold transition">Kirim</button>
+                                </div>
+                                <div id="quizResult2" class="text-xs font-semibold hidden"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TOPIC 3: PERULANGAN (LOOPING) -->
+                <div id="content-topic3" class="topic-content hidden space-y-6">
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <div class="bg-slate-800/90 border border-slate-700 rounded-2xl p-5 space-y-4">
+                            <div class="flex justify-between items-center border-b border-slate-700/80 pb-3">
+                                <h3 class="font-bold text-lg text-sky-400 flex items-center gap-2">
+                                    <i class="fa-solid fa-diagram-project"></i> Flowchart & Pseudocode
+                                </h3>
+                                <span class="text-xs bg-slate-700 text-slate-300 px-2 py-1 rounded">Topik 3: Cetak Bintang</span>
+                            </div>
+
+                            <div>
+                                <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Pseudocode:</p>
+                                <pre class="bg-slate-950 text-emerald-400 font-mono text-xs p-3.5 rounded-xl border border-slate-800 leading-relaxed overflow-x-auto">
+PROGRAM Cetak_Bintang_Looping
+DEKLARASI:
+    i, n : INTEGER
+ALGORITMA:
+    n <- 5
+    FOR i <- 1 TO n DO
+        OUTPUT "* "
+    END FOR
+END PROGRAM</pre>
+                            </div>
+
+                            <div>
+                                <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Flowchart Visual:</p>
+                                <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 flex justify-center overflow-x-auto">
+                                    <svg width="280" height="280" viewBox="0 0 280 280" class="text-slate-200 font-sans text-xs">
+                                        <rect x="90" y="10" width="100" height="30" rx="15" fill="#0284c7" stroke="#38bdf8" stroke-width="2"/>
+                                        <text x="140" y="30" text-anchor="middle" fill="#ffffff" font-weight="bold">Mulai</text>
+                                        <line x1="140" y1="40" x2="140" y2="60" stroke="#94a3b8" stroke-width="2"/>
+                                        
+                                        <rect x="70" y="60" width="140" height="30" rx="5" fill="#1e293b" stroke="#38bdf8" stroke-width="2"/>
+                                        <text x="140" y="80" text-anchor="middle" fill="#ffffff">i = 1, n = 5</text>
+                                        <line x1="140" y1="90" x2="140" y2="110" stroke="#94a3b8" stroke-width="2"/>
+
+                                        <polygon points="140,110 200,135 140,160 80,135" fill="#0284c7" stroke="#38bdf8" stroke-width="2"/>
+                                        <text x="140" y="139" text-anchor="middle" fill="#ffffff">i <= n ?</text>
+                                        
+                                        <line x1="140" y1="160" x2="140" y2="190" stroke="#94a3b8" stroke-width="2"/>
+                                        <text x="150" y="175" fill="#4ade80" font-weight="bold">Ya</text>
+
+                                        <polygon points="80,190 200,190 180,220 60,220" fill="#334155" stroke="#38bdf8" stroke-width="2"/>
+                                        <text x="130" y="209" text-anchor="middle" fill="#ffffff">Cetak "* "; i++</text>
+                                        
+                                        <path d="M 60 205 L 35 205 L 35 135 L 80 135" fill="none" stroke="#94a3b8" stroke-width="2"/>
+
+                                        <line x1="200" y1="135" x2="240" y2="135" stroke="#94a3b8" stroke-width="2"/>
+                                        <line x1="240" y1="135" x2="240" y2="250" stroke="#94a3b8" stroke-width="2"/>
+                                        <line x1="240" y1="250" x2="190" y2="250" stroke="#94a3b8" stroke-width="2"/>
+                                        <text x="210" y="128" fill="#f87171" font-weight="bold">Tidak</text>
+
+                                        <rect x="90" y="235" width="100" height="30" rx="15" fill="#e11d48" stroke="#fda4af" stroke-width="2"/>
+                                        <text x="140" y="255" text-anchor="middle" fill="#ffffff" font-weight="bold">Selesai</text>
+                                    </svg>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-slate-800/90 border border-slate-700 rounded-2xl p-5 space-y-4 flex flex-col justify-between">
+                            <div>
+                                <div class="flex justify-between items-center border-b border-slate-700/80 pb-3 mb-4">
+                                    <h3 class="font-bold text-lg text-sky-400 flex items-center gap-2">
+                                        <i class="fa-solid fa-code"></i> Implementasi C++
+                                    </h3>
+                                    <button onclick="loadTemplateIntoCompiler('topic3')" class="text-xs bg-sky-600/30 hover:bg-sky-600/50 text-sky-300 border border-sky-500/40 px-3 py-1 rounded-lg transition flex items-center gap-1.5">
+                                        <i class="fa-solid fa-terminal"></i> Muat ke Compiler
+                                    </button>
+                                </div>
+
+                                <pre class="bg-slate-950 text-sky-300 font-mono text-xs p-3.5 rounded-xl border border-slate-800 leading-relaxed overflow-x-auto">
+#include &lt;iostream&gt;
+using namespace std;
+
+int main() {
+    int n = 5;
+    cout << "Cetak Bintang " << n << " kali: " << endl;
+    
+    for(int i = 1; i <= n; i++) {
+        cout << "* ";
+    }
+    cout << endl;
+    return 0;
+}</pre>
+                            </div>
+
+                            <div class="bg-slate-900/90 p-4 rounded-xl border border-slate-700 space-y-3">
+                                <span class="text-xs font-bold text-amber-400 uppercase tracking-wide flex items-center gap-1">
+                                    <i class="fa-solid fa-pen-to-square"></i> Soal Latihan Topik 3
+                                </span>
+                                <p class="text-xs text-slate-200">
+                                    Berapa kali simbol bintang <code class="text-sky-300">*</code> tercetak jika perulangan diubah menjadi <code class="text-sky-300">for(int i=1; i<=8; i++)</code>?
+                                </p>
+                                <div class="flex gap-2">
+                                    <input type="number" id="quizAns3" placeholder="Jawaban..." class="bg-slate-950 text-white text-xs px-3 py-2 rounded-lg border border-slate-700 w-full focus:outline-none focus:border-sky-500">
+                                    <button onclick="checkQuiz('topic3', 8)" class="bg-sky-600 hover:bg-sky-500 text-white text-xs px-4 py-2 rounded-lg font-semibold transition">Kirim</button>
+                                </div>
+                                <div id="quizResult3" class="text-xs font-semibold hidden"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TOPIC 4: BANGUN RUANG -->
+                <div id="content-topic4" class="topic-content hidden space-y-6">
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <div class="bg-slate-800/90 border border-slate-700 rounded-2xl p-5 space-y-4">
+                            <div class="flex justify-between items-center border-b border-slate-700/80 pb-3">
+                                <h3 class="font-bold text-lg text-sky-400 flex items-center gap-2">
+                                    <i class="fa-solid fa-diagram-project"></i> Flowchart & Pseudocode
+                                </h3>
+                                <span class="text-xs bg-slate-700 text-slate-300 px-2 py-1 rounded">Topik 4: Volume Balok & Tabung</span>
+                            </div>
+
+                            <div>
+                                <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Pseudocode Volume Balok & Tabung:</p>
+                                <pre class="bg-slate-950 text-emerald-400 font-mono text-xs p-3.5 rounded-xl border border-slate-800 leading-relaxed overflow-x-auto">
+PROGRAM Hitung_Volume_Bangun_Ruang
+DEKLARASI:
+    p, l, t, r, volBalok, volTabung : REAL
+    PHI = 3.14159
+ALGORITMA:
+    volBalok <- p * l * t
+    volTabung <- PHI * r * r * t
+    OUTPUT volBalok, volTabung
+END PROGRAM</pre>
+                            </div>
+
+                            <div>
+                                <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Flowchart Visual Volume Balok:</p>
+                                <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 flex justify-center overflow-x-auto">
+                                    <svg width="280" height="290" viewBox="0 0 280 290" class="text-slate-200 font-sans text-xs">
+                                        <rect x="90" y="10" width="100" height="30" rx="15" fill="#0284c7" stroke="#38bdf8" stroke-width="2"/>
+                                        <text x="140" y="30" text-anchor="middle" fill="#ffffff" font-weight="bold">Mulai</text>
+                                        <line x1="140" y1="40" x2="140" y2="60" stroke="#94a3b8" stroke-width="2"/>
+
+                                        <polygon points="60,60 220,60 190,90 30,90" fill="#334155" stroke="#38bdf8" stroke-width="2"/>
+                                        <text x="125" y="80" text-anchor="middle" fill="#ffffff">Input p, l, t</text>
+                                        <line x1="140" y1="90" x2="140" y2="120" stroke="#94a3b8" stroke-width="2"/>
+
+                                        <rect x="50" y="120" width="180" height="35" rx="5" fill="#1e293b" stroke="#38bdf8" stroke-width="2"/>
+                                        <text x="140" y="142" text-anchor="middle" fill="#ffffff">volBalok = p * l * t</text>
+                                        <line x1="140" y1="155" x2="140" y2="185" stroke="#94a3b8" stroke-width="2"/>
+
+                                        <polygon points="60,185 220,185 190,215 30,215" fill="#334155" stroke="#38bdf8" stroke-width="2"/>
+                                        <text x="125" y="205" text-anchor="middle" fill="#ffffff">Cetak volBalok</text>
+                                        <line x1="140" y1="215" x2="140" y2="245" stroke="#94a3b8" stroke-width="2"/>
+
+                                        <rect x="90" y="245" width="100" height="30" rx="15" fill="#e11d48" stroke="#fda4af" stroke-width="2"/>
+                                        <text x="140" y="265" text-anchor="middle" fill="#ffffff" font-weight="bold">Selesai</text>
+                                    </svg>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-slate-800/90 border border-slate-700 rounded-2xl p-5 space-y-4 flex flex-col justify-between">
+                            <div>
+                                <div class="flex justify-between items-center border-b border-slate-700/80 pb-3 mb-4">
+                                    <h3 class="font-bold text-lg text-sky-400 flex items-center gap-2">
+                                        <i class="fa-solid fa-code"></i> Implementasi C++
+                                    </h3>
+                                    <button onclick="loadTemplateIntoCompiler('topic4')" class="text-xs bg-sky-600/30 hover:bg-sky-600/50 text-sky-300 border border-sky-500/40 px-3 py-1 rounded-lg transition flex items-center gap-1.5">
+                                        <i class="fa-solid fa-terminal"></i> Muat ke Compiler
+                                    </button>
+                                </div>
+
+                                <pre class="bg-slate-950 text-sky-300 font-mono text-xs p-3.5 rounded-xl border border-slate-800 leading-relaxed overflow-x-auto">
+#include &lt;iostream&gt;
+using namespace std;
+
+int main() {
+    float p = 10.0, l = 5.0, t = 4.0;
+    float volBalok = p * l * t;
+
+    cout << "=== VOLUME BALOK ===" << endl;
+    cout << "Panjang: " << p << " cm, Lebar: " << l << " cm, Tinggi: " << t << " cm" << endl;
+    cout << "Hasil Volume Balok = " << volBalok << " cm3" << endl;
+
+    return 0;
+}</pre>
+                            </div>
+
+                            <div class="bg-slate-900/90 p-4 rounded-xl border border-slate-700 space-y-3">
+                                <span class="text-xs font-bold text-amber-400 uppercase tracking-wide flex items-center gap-1">
+                                    <i class="fa-solid fa-pen-to-square"></i> Soal Latihan Topik 4
+                                </span>
+                                <p class="text-xs text-slate-200">
+                                    Berapakah volume balok jika panjang = 8 cm, lebar = 3 cm, dan tinggi = 5 cm?
+                                </p>
+                                <div class="flex gap-2">
+                                    <input type="number" id="quizAns4" placeholder="Jawaban..." class="bg-slate-950 text-white text-xs px-3 py-2 rounded-lg border border-slate-700 w-full focus:outline-none focus:border-sky-500">
+                                    <button onclick="checkQuiz('topic4', 120)" class="bg-sky-600 hover:bg-sky-500 text-white text-xs px-4 py-2 rounded-lg font-semibold transition">Kirim</button>
+                                </div>
+                                <div id="quizResult4" class="text-xs font-semibold hidden"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- SECTION: INTERACTIVE C++ SIMULATOR / COMPILER (SPLIT SCREEN) -->
+            <div id="compilerSection" class="bg-slate-900 border border-slate-700/80 rounded-2xl overflow-hidden shadow-2xl space-y-0">
+                <!-- Header Control Panel -->
+                <div class="bg-slate-800/90 px-5 py-3.5 border-b border-slate-700 flex flex-wrap items-center justify-between gap-3">
+                    <div class="flex items-center gap-3">
+                        <div class="flex space-x-1.5">
+                            <span class="w-3 h-3 rounded-full bg-rose-500/80 inline-block"></span>
+                            <span class="w-3 h-3 rounded-full bg-amber-500/80 inline-block"></span>
+                            <span class="w-3 h-3 rounded-full bg-emerald-500/80 inline-block"></span>
+                        </div>
+                        <h3 class="font-bold text-sm text-slate-200 flex items-center gap-2 font-mono">
+                            <i class="fa-solid fa-terminal text-sky-400"></i> Editor Kode & Interactive C++ Simulator
+                        </h3>
+                    </div>
+
+                    <div class="flex items-center gap-2 flex-wrap">
+                        <select id="selectTemplate" onchange="loadSelectedTemplate()" class="bg-slate-950 border border-slate-700 text-slate-300 text-xs rounded-lg px-3 py-1.5 focus:outline-none focus:border-sky-500">
+                            <optgroup label="Modul Dasar C++">
+                                <option value="structure">1. Struktur C++</option>
+                                <option value="datatypes">2. Tipe Data & Variabel</option>
+                                <option value="constantsVars">3. Konstanta (const & #define)</option>
+                                <option value="operators">4. Operator C++</option>
+                                <option value="syntaxIo">5. Input/Output (cin & cout)</option>
+                            </optgroup>
+                            <optgroup label="LKPD Praktikum">
+                                <option value="topic1">Topik 1: Perhitungan Bilangan</option>
+                                <option value="topic2">Topik 2: Deretan Angka</option>
+                                <option value="topic3">Topik 3: Perulangan (Looping)</option>
+                                <option value="topic4">Topik 4: Bangun Ruang</option>
+                            </optgroup>
+                        </select>
+
+                        <button onclick="runCode()" class="bg-emerald-600 hover:bg-emerald-500 active:scale-95 text-white text-xs font-bold px-4 py-1.5 rounded-lg shadow-md transition flex items-center gap-1.5">
+                            <i class="fa-solid fa-play"></i> Jalankan Kode (Run)
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Split Screen Area -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 divide-y lg:divide-y-0 lg:divide-x divide-slate-800 min-h-[400px]">
+                    <!-- Left: Code Editor -->
+                    <div class="p-4 bg-slate-950 flex flex-col">
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="text-[11px] font-mono text-slate-400 uppercase tracking-wider flex items-center gap-1">
+                                <i class="fa-solid fa-file-code text-sky-400"></i> main.cpp
+                            </span>
+                            <span class="text-[11px] text-slate-500">GCC C++17 Virtual Compiler</span>
+                        </div>
+                        <textarea id="cppCodeEditor" class="w-full flex-1 bg-slate-900 border border-slate-800 rounded-xl p-3 font-mono text-xs text-sky-300 focus:outline-none focus:border-sky-500/60 custom-scrollbar leading-relaxed resize-none" spellcheck="false" rows="18"></textarea>
+                    </div>
+
+                    <!-- Right: Terminal Output -->
+                    <div class="p-4 bg-slate-950 flex flex-col">
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="text-[11px] font-mono text-slate-400 uppercase tracking-wider flex items-center gap-1">
+                                <i class="fa-solid fa-square-poll-horizontal text-emerald-400"></i> Output Console
+                            </span>
+                            <button onclick="clearTerminal()" class="text-[11px] text-slate-500 hover:text-slate-300 transition">
+                                <i class="fa-solid fa-trash-can mr-1"></i>Bersihkan
+                            </button>
+                        </div>
+                        <div id="compilerOutput" class="w-full flex-1 bg-black/95 border border-slate-800 rounded-xl p-4 font-mono text-xs text-emerald-400 custom-scrollbar overflow-y-auto whitespace-pre-wrap leading-relaxed shadow-inner">
+G++ Virtual Compiler System initialized.
+Siap mengeksekusi program. Tekan tombol "Jalankan Kode" di atas!
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+    </main>
+
+    <!-- TEACHER DASHBOARD MODAL -->
+    <div id="teacherModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md hidden items-center justify-center z-50 p-4">
+        <div class="bg-slate-900 border border-slate-700 rounded-2xl w-full max-w-4xl max-h-[90vh] flex flex-col shadow-2xl overflow-hidden relative">
+            
+            <!-- Modal Header -->
+            <div class="bg-slate-800 px-6 py-4 border-b border-slate-700 flex justify-between items-center">
+                <div class="flex items-center gap-3">
+                    <div class="p-2 bg-emerald-500/20 text-emerald-400 rounded-xl border border-emerald-500/30">
+                        <i class="fa-solid fa-user-gear text-lg"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-bold text-white">Dasbor Guru - Syofyan Dinata, S. Kom</h3>
+                        <p class="text-xs text-slate-400">SMK Negeri 3 Sibolga • Monitoring & Rekapitulasi Nilai LKPD</p>
+                    </div>
+                </div>
+                <button onclick="closeTeacherModal()" class="text-slate-400 hover:text-white transition">
+                    <i class="fa-solid fa-xmark text-xl"></i>
+                </button>
+            </div>
+
+            <!-- PIN Check Screen -->
+            <div id="teacherPinScreen" class="p-8 text-center space-y-5 max-w-md mx-auto my-auto w-full">
+                <div class="inline-flex p-3 bg-amber-500/10 rounded-2xl text-amber-400 border border-amber-500/20">
+                    <i class="fa-solid fa-lock text-3xl"></i>
+                </div>
+                <div>
+                    <h4 class="text-xl font-bold text-white">Verifikasi Akses Guru</h4>
+                    <p class="text-xs text-slate-400 mt-1">Masukkan PIN Otentikasi Guru untuk membuka rekapitulasi.</p>
+                </div>
+                <div class="space-y-3">
+                    <input type="password" id="inputTeacherPin" placeholder="PIN Guru (Default: 1234)" class="w-full bg-slate-950 border border-slate-700 text-center font-mono text-lg tracking-widest text-white rounded-xl py-2.5 focus:outline-none focus:border-emerald-500">
+                    <p id="pinErrorMessage" class="text-xs text-rose-400 hidden font-semibold"></p>
+                    <button onclick="verifyTeacherPin()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-semibold py-2.5 rounded-xl transition">
+                        Buka Dasbor Guru
+                    </button>
+                </div>
+            </div>
+
+            <!-- Dashboard Content -->
+            <div id="teacherDashboardContent" class="hidden flex-1 overflow-y-auto p-6 space-y-6 custom-scrollbar">
+                
+                <!-- Real-time Clock & Info Cards -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div class="bg-slate-800/80 p-4 rounded-xl border border-slate-700 flex items-center gap-3">
+                        <i class="fa-solid fa-calendar-day text-sky-400 text-2xl"></i>
+                        <div>
+                            <span class="text-[10px] text-slate-400 font-semibold uppercase">Hari & Tanggal</span>
+                            <p id="liveDate" class="text-sm font-bold text-slate-200">Senin, 19 Oktober 2026</p>
+                        </div>
+                    </div>
+
+                    <div class="bg-slate-800/80 p-4 rounded-xl border border-slate-700 flex items-center gap-3">
+                        <i class="fa-solid fa-clock text-amber-400 text-2xl"></i>
+                        <div>
+                            <span class="text-[10px] text-slate-400 font-semibold uppercase">Waktu Real-time</span>
+                            <p id="liveClock" class="text-sm font-bold font-mono text-amber-300">00:00:00 WIB</p>
+                        </div>
+                    </div>
+
+                    <div class="bg-slate-800/80 p-4 rounded-xl border border-slate-700 flex items-center gap-3">
+                        <i class="fa-solid fa-users-viewfinder text-emerald-400 text-2xl"></i>
+                        <div>
+                            <span class="text-[10px] text-slate-400 font-semibold uppercase">Total Rekap Siswa</span>
+                            <p id="totalStudentCount" class="text-sm font-bold text-emerald-400">0 Siswa Mengerjakan</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Table -->
+                <div class="bg-slate-800/60 border border-slate-700 rounded-xl overflow-hidden">
+                    <div class="p-4 border-b border-slate-700 flex justify-between items-center flex-wrap gap-2">
+                        <h4 class="font-bold text-sm text-slate-200 flex items-center gap-2">
+                            <i class="fa-solid fa-table-list text-sky-400"></i> Rekapitulasi Hasil Pengerjaan LKPD
+                        </h4>
+                        <button onclick="clearStudentRecords()" class="text-xs text-rose-400 hover:text-rose-300 bg-rose-500/10 border border-rose-500/20 px-3 py-1 rounded-lg">
+                            <i class="fa-solid fa-trash mr-1"></i> Hapus Rekap
+                        </button>
+                    </div>
+
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-xs text-left text-slate-300">
+                            <thead class="bg-slate-900/90 text-slate-400 uppercase font-mono text-[10px]">
+                                <tr>
+                                    <th class="p-3">#</th>
+                                    <th class="p-3">Nama Siswa</th>
+                                    <th class="p-3">Kelas</th>
+                                    <th class="p-3 text-center">Topik 1</th>
+                                    <th class="p-3 text-center">Topik 2</th>
+                                    <th class="p-3 text-center">Topik 3</th>
+                                    <th class="p-3 text-center">Topik 4</th>
+                                    <th class="p-3 text-center">Total Skor</th>
+                                </tr>
+                            </thead>
+                            <tbody id="teacherTableBody" class="divide-y divide-slate-800 font-mono">
+                                <!-- Dynamic Rows -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="mt-auto border-t border-slate-800 bg-slate-950 py-4 text-center text-xs text-slate-500">
+        <p>© 2026 LKPD Interaktif Program Komputasi C++ • SMK Negeri 3 Sibolga</p>
+        <p class="mt-0.5 text-[11px] text-slate-600">Guru Pengampu: Syofyan Dinata, S. Kom</p>
+    </footer>
+
+    <!-- SCRIPT LOGIC -->
+    <script>
+        let currentStudent = JSON.parse(localStorage.getItem('student_session')) || null;
+
+        // C++ Templates for Editor
+        const cppTemplates = {
+            structure: `#include <iostream>\nusing namespace std;\n\nint main() {\n    // Menampilkan teks sambutan\n    cout << "Selamat Datang di Pemrograman C++ SMK Negeri 3 Sibolga!" << endl;\n    cout << "Disusun oleh Guru: Syofyan Dinata, S. Kom" << endl;\n    return 0;\n}`,
+            datatypes: `#include <iostream>\n#include <string>\nusing namespace std;\n\nint main() {\n    int umur = 16;\n    float nilai = 88.5;\n    char gred = 'A';\n    string nama = "Rizky Pratama";\n    bool aktif = true;\n\n    cout << "Nama Siswa: " << nama << endl;\n    cout << "Umur      : " << umur << " tahun" << endl;\n    cout << "Nilai Ujian: " << nilai << endl;\n    cout << "Gred       : " << gred << endl;\n    cout << "Status     : " << (aktif ? "Aktif" : "Non-Aktif") << endl;\n    return 0;\n}`,
+            constantsVars: `#include <iostream>\nusing namespace std;\n\n#define NAMA_SEKOLAH "SMK Negeri 3 Sibolga"\n\nint main() {\n    const float PI = 3.14159;\n    float jariJari = 7.0;\n    float luas = PI * jariJari * jariJari;\n\n    cout << "Sekolah: " << NAMA_SEKOLAH << endl;\n    cout << "Luas Lingkaran (r=7): " << luas << endl;\n    return 0;\n}`,
+            operators: `#include <iostream>\nusing namespace std;\n\nint main() {\n    int x = 10, y = 3;\n\n    cout << "=== OPERATOR ARITMATIKA ===" << endl;\n    cout << "10 + 3 = " << (x + y) << endl;\n    cout << "10 % 3 = " << (x % y) << " (Sisa Bagi)" << endl;\n\n    cout << "\\n=== OPERATOR PERBANDINGAN ===" << endl;\n    cout << "Apakah 10 > 3 ? " << (x > y ? "Ya (True)" : "Tidak (False)") << endl;\n    return 0;\n}`,
+            syntaxIo: `#include <iostream>\n#include <string>\nusing namespace std;\n\nint main() {\n    string namaSiswa = "Budi";\n    int kelas = 10;\n\n    cout << "=== CONTOH INPUT OUTPUT ===" << endl;\n    cout << "Nama\\t: " << namaSiswa << "\\nKelas\\t: " << kelas << endl;\n    return 0;\n}`,
+            topic1: `#include <iostream>\nusing namespace std;\n\nint main() {\n    int a = 12, b = 5;\n    int hasilJumlah = a + b;\n    int hasilKali = a * b;\n\n    cout << "=== PERHITUNGAN BILANGAN ===" << endl;\n    cout << "Bilangan A : " << a << endl;\n    cout << "Bilangan B : " << b << endl;\n    cout << "Hasil Penjumlahan: " << hasilJumlah << endl;\n    cout << "Hasil Perkalian  : " << hasilKali << endl;\n\n    return 0;\n}`,
+            topic2: `#include <iostream>\nusing namespace std;\n\nint main() {\n    cout << "=== DERET ANGKA GENAP (2 - 10) ===" << endl;\n    for(int i = 2; i <= 10; i += 2) {\n        cout << i << " ";\n    }\n    cout << endl;\n    return 0;\n}`,
+            topic3: `#include <iostream>\nusing namespace std;\n\nint main() {\n    int n = 5;\n    cout << "Cetak Bintang " << n << " kali: " << endl;\n    for(int i = 1; i <= n; i++) {\n        cout << "* ";\n    }\n    cout << endl;\n    return 0;\n}`,
+            topic4: `#include <iostream>\nusing namespace std;\n\nint main() {\n    float p = 10.0, l = 5.0, t = 4.0;\n    float volBalok = p * l * t;\n\n    cout << "=== VOLUME BALOK ===" << endl;\n    cout << "Panjang : " << p << " cm" << endl;\n    cout << "Lebar   : " << l << " cm" << endl;\n    cout << "Tinggi  : " << t << " cm" << endl;\n    cout << "Hasil Volume Balok = " << volBalok << " cm3" << endl;\n    return 0;\n}`
+        };
+
+        window.onload = function() {
+            updateLiveTime();
+            setInterval(updateLiveTime, 1000);
+            checkSession();
+            document.getElementById('cppCodeEditor').value = cppTemplates.structure;
+        };
+
+        function checkSession() {
+            if (currentStudent) {
+                document.getElementById('loginSection').classList.add('hidden');
+                document.getElementById('lkpdMainArea').classList.remove('hidden');
+                document.getElementById('studentSessionBadge').classList.remove('hidden');
+                document.getElementById('studentSessionBadge').classList.add('flex');
+                document.getElementById('badgeStudentName').innerText = currentStudent.name;
+                document.getElementById('badgeStudentClass').innerText = currentStudent.classGroup;
+                document.getElementById('activeStudentLabel').innerText = `${currentStudent.name} (${currentStudent.classGroup})`;
+            } else {
+                document.getElementById('loginSection').classList.remove('hidden');
+                document.getElementById('lkpdMainArea').classList.add('hidden');
+                document.getElementById('studentSessionBadge').classList.add('hidden');
+            }
+        }
+
+        function handleStudentLogin(event) {
+            event.preventDefault();
+            const name = document.getElementById('inputStudentName').value.trim();
+            const classGroup = document.getElementById('inputStudentClass').value;
+
+            if (!name || !classGroup) return;
+
+            currentStudent = {
+                name: name,
+                classGroup: classGroup,
+                scores: { topic1: 0, topic2: 0, topic3: 0, topic4: 0 }
+            };
+
+            localStorage.setItem('student_session', JSON.stringify(currentStudent));
+            saveOrUpdateStudentRecord();
+            checkSession();
+        }
+
+        function logoutStudent() {
+            currentStudent = null;
+            localStorage.removeItem('student_session');
+            checkSession();
+        }
+
+        // Main Navigation (Basic Theory vs Practical)
+        function switchCategory(cat) {
+            if (cat === 'basicTheory') {
+                document.getElementById('categoryBasicTheory').classList.remove('hidden');
+                document.getElementById('categoryLKPD').classList.add('hidden');
+                document.getElementById('catBtnTheory').className = "px-5 py-3 font-bold text-sm rounded-t-xl transition flex items-center gap-2 border-b-2 border-sky-500 text-sky-400 bg-slate-800/80";
+                document.getElementById('catBtnPraktikum').className = "px-5 py-3 font-bold text-sm rounded-t-xl transition flex items-center gap-2 border-b-2 border-transparent text-slate-400 hover:text-slate-200 hover:bg-slate-800/40";
+            } else {
+                document.getElementById('categoryBasicTheory').classList.add('hidden');
+                document.getElementById('categoryLKPD').classList.remove('hidden');
+                document.getElementById('catBtnPraktikum').className = "px-5 py-3 font-bold text-sm rounded-t-xl transition flex items-center gap-2 border-b-2 border-sky-500 text-sky-400 bg-slate-800/80";
+                document.getElementById('catBtnTheory').className = "px-5 py-3 font-bold text-sm rounded-t-xl transition flex items-center gap-2 border-b-2 border-transparent text-slate-400 hover:text-slate-200 hover:bg-slate-800/40";
+            }
+        }
+
+        // Sub Theory Navigation
+        function switchTheoryTab(key) {
+            document.querySelectorAll('.theory-content').forEach(el => el.classList.add('hidden'));
+            document.querySelectorAll('.theory-tab-btn').forEach(btn => {
+                btn.classList.remove('border-sky-400', 'text-sky-300', 'bg-slate-800/60');
+                btn.classList.add('border-transparent', 'text-slate-400');
+            });
+
+            document.getElementById(`theoryContent-${key}`).classList.remove('hidden');
+            const btn = document.getElementById(`theoryTab-${key}`);
+            btn.classList.remove('border-transparent', 'text-slate-400');
+            btn.classList.add('border-sky-400', 'text-sky-300', 'bg-slate-800/60');
+
+            loadTemplateIntoCompiler(key);
+        }
+
+        // Sub Practical Tab Navigation
+        function switchTab(topicKey) {
+            document.querySelectorAll('.topic-content').forEach(el => el.classList.add('hidden'));
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('border-sky-500', 'text-sky-400', 'bg-slate-800/80');
+                btn.classList.add('border-transparent', 'text-slate-400');
+            });
+
+            document.getElementById(`content-${topicKey}`).classList.remove('hidden');
+            const activeTab = document.getElementById(`tab-${topicKey}`);
+            activeTab.classList.remove('border-transparent', 'text-slate-400');
+            activeTab.classList.add('border-sky-500', 'text-sky-400', 'bg-slate-800/80');
+
+            loadTemplateIntoCompiler(topicKey);
+        }
+
+        function loadDirectCode(key) {
+            loadTemplateIntoCompiler(key);
+            document.getElementById('compilerSection').scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+
+        function loadTemplateIntoCompiler(key) {
+            document.getElementById('selectTemplate').value = key;
+            document.getElementById('cppCodeEditor').value = cppTemplates[key] || '';
+        }
+
+        function loadSelectedTemplate() {
+            const key = document.getElementById('selectTemplate').value;
+            document.getElementById('cppCodeEditor').value = cppTemplates[key] || '';
+        }
+
+        // Simulated Code Runner
+        function runCode() {
+            const code = document.getElementById('cppCodeEditor').value;
+            const outputTerminal = document.getElementById('compilerOutput');
+            outputTerminal.innerHTML = "<span class='text-amber-400'>[G++ Compiling main.cpp...]</span>\n";
+
+            setTimeout(() => {
+                let simulatedOutput = "";
+                
+                if (code.includes('SMK Negeri 3 Sibolga')) {
+                    simulatedOutput = "Selamat Datang di Pemrograman C++ SMK Negeri 3 Sibolga!\nDisusun oleh Guru: Syofyan Dinata, S. Kom";
+                } else if (code.includes('Rizky Pratama')) {
+                    simulatedOutput = "Nama Siswa: Rizky Pratama\nUmur      : 16 tahun\nNilai Ujian: 88.5\nGred       : A\nStatus     : Aktif";
+                } else if (code.includes('NAMA_SEKOLAH')) {
+                    simulatedOutput = "Sekolah: SMK Negeri 3 Sibolga\nLuas Lingkaran (r=7): 153.938";
+                } else if (code.includes('OPERATOR ARITMATIKA')) {
+                    simulatedOutput = "=== OPERATOR ARITMATIKA ===\n10 + 3 = 13\n10 % 3 = 1 (Sisa Bagi)\n\n=== OPERATOR PERBANDINGAN ===\nApakah 10 > 3 ? Ya (True)";
+                } else if (code.includes('CONTOH INPUT OUTPUT')) {
+                    simulatedOutput = "=== CONTOH INPUT OUTPUT ===\nNama\t: Budi\nKelas\t: 10";
+                } else if (code.includes('PERHITUNGAN BILANGAN')) {
+                    simulatedOutput = "=== PERHITUNGAN BILANGAN ===\nBilangan A : 12\nBilangan B : 5\nHasil Penjumlahan: 17\nHasil Perkalian  : 60";
+                } else if (code.includes('DERET ANGKA GENAP')) {
+                    simulatedOutput = "=== DERET ANGKA GENAP (2 - 10) ===\n2 4 6 8 10 ";
+                } else if (code.includes('Cetak Bintang')) {
+                    simulatedOutput = "Cetak Bintang 5 kali: \n* * * * * ";
+                } else if (code.includes('VOLUME BALOK')) {
+                    simulatedOutput = "=== VOLUME BALOK ===\nPanjang : 10 cm\nLebar   : 5 cm\nTinggi  : 4 cm\nHasil Volume Balok = 200 cm3";
+                } else {
+                    simulatedOutput = "Program C++ berhasil dikompilasi (0 Warnings, 0 Errors).\n";
+                    if(code.includes('cout')) {
+                        simulatedOutput += "\n[Captured Output]\n";
+                        const matches = code.match(/cout\s*<<\s*"(.*?)"/g);
+                        if(matches) {
+                            matches.forEach(m => {
+                                const str = m.replace(/cout\s*<<\s*"/, '').replace('"', '');
+                                simulatedOutput += str + "\n";
+                            });
+                        }
+                    }
+                }
+
+                outputTerminal.innerText = simulatedOutput + "\n\n--------------------------------\nProcess finished with exit code 0";
+            }, 500);
+        }
+
+        function clearTerminal() {
+            document.getElementById('compilerOutput').innerText = "Terminal cleared.";
+        }
+
+        // Quiz Verification
+        function checkQuiz(topicKey, correctAnswer) {
+            if (!currentStudent) {
+                alert("Harap login terlebih dahulu!");
+                return;
+            }
+
+            let inputId = "quizAns" + topicKey.replace('topic', '');
+            let resultId = "quizResult" + topicKey.replace('topic', '');
+            let userAns = parseFloat(document.getElementById(inputId).value);
+            let resDiv = document.getElementById(resultId);
+
+            resDiv.classList.remove('hidden', 'text-emerald-400', 'text-rose-400');
+
+            if (userAns === correctAnswer) {
+                resDiv.innerText = "✓ Jawaban Benar! (Nilai 25 dicatat)";
+                resDiv.classList.add('text-emerald-400');
+                currentStudent.scores[topicKey] = 25;
+            } else {
+                resDiv.innerText = "✗ Jawaban belum tepat, silakan periksa kembali.";
+                resDiv.classList.add('text-rose-400');
+                currentStudent.scores[topicKey] = 0;
+            }
+
+            saveOrUpdateStudentRecord();
+        }
+
+        function saveOrUpdateStudentRecord() {
+            if (!currentStudent) return;
+
+            let records = JSON.parse(localStorage.getItem('student_lkpd_records')) || [];
+            let existingIdx = records.findIndex(r => r.name === currentStudent.name && r.classGroup === currentStudent.classGroup);
+
+            if (existingIdx >= 0) {
+                records[existingIdx] = currentStudent;
+            } else {
+                records.push(currentStudent);
+            }
+
+            localStorage.setItem('student_lkpd_records', JSON.stringify(records));
+            localStorage.setItem('student_session', JSON.stringify(currentStudent));
+        }
+
+        function updateLiveTime() {
+            const now = new Date();
+            const days = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
+            const months = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+
+            const dayName = days[now.getDay()];
+            const dateNum = now.getDate();
+            const monthName = months[now.getMonth()];
+            const year = now.getFullYear();
+
+            const timeStr = now.toLocaleTimeString('id-ID') + " WIB";
+
+            const dateElem = document.getElementById('liveDate');
+            const timeElem = document.getElementById('liveClock');
+
+            if (dateElem) dateElem.innerText = `${dayName}, ${dateNum} ${monthName} ${year}`;
+            if (timeElem) timeElem.innerText = timeStr;
+        }
+
+        function openTeacherModal() {
+            document.getElementById('teacherModal').classList.remove('hidden');
+            document.getElementById('teacherModal').classList.add('flex');
+        }
+
+        function closeTeacherModal() {
+            document.getElementById('teacherModal').classList.add('hidden');
+            document.getElementById('teacherModal').classList.remove('flex');
+            document.getElementById('teacherPinScreen').classList.remove('hidden');
+            document.getElementById('teacherDashboardContent').classList.add('hidden');
+            document.getElementById('inputTeacherPin').value = '';
+        }
+
+        function verifyTeacherPin() {
+            const pin = document.getElementById('inputTeacherPin').value;
+            const err = document.getElementById('pinErrorMessage');
+
+            if (pin === "1234") {
+                err.classList.add('hidden');
+                document.getElementById('teacherPinScreen').classList.add('hidden');
+                document.getElementById('teacherDashboardContent').classList.remove('hidden');
+                renderTeacherDashboardData();
+            } else {
+                err.innerText = "PIN Salah! Gunakan PIN default: 1234";
+                err.classList.remove('hidden');
+            }
+        }
+
+        function renderTeacherDashboardData() {
+            const records = JSON.parse(localStorage.getItem('student_lkpd_records')) || [];
+            const tbody = document.getElementById('teacherTableBody');
+            document.getElementById('totalStudentCount').innerText = `${records.length} Siswa Mengerjakan`;
+
+            tbody.innerHTML = '';
+
+            if (records.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="8" class="p-4 text-center text-slate-500 italic">Belum ada data pengerjaan siswa.</td></tr>`;
+                return;
+            }
+
+            records.forEach((rec, idx) => {
+                const total = (rec.scores.topic1 || 0) + (rec.scores.topic2 || 0) + (rec.scores.topic3 || 0) + (rec.scores.topic4 || 0);
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-slate-800/40 border-b border-slate-800";
+                tr.innerHTML = `
+                    <td class="p-3 font-semibold text-slate-400">${idx + 1}</td>
+                    <td class="p-3 font-medium text-white">${rec.name}</td>
+                    <td class="p-3 text-sky-400">${rec.classGroup}</td>
+                    <td class="p-3 text-center">${rec.scores.topic1 || 0}</td>
+                    <td class="p-3 text-center">${rec.scores.topic2 || 0}</td>
+                    <td class="p-3 text-center">${rec.scores.topic3 || 0}</td>
+                    <td class="p-3 text-center">${rec.scores.topic4 || 0}</td>
+                    <td class="p-3 text-center font-bold text-emerald-400">${total} / 100</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function clearStudentRecords() {
+            if (confirm("Apakah Anda yakin ingin menghapus seluruh rekap data siswa?")) {
+                localStorage.removeItem('student_lkpd_records');
+                renderTeacherDashboardData();
+            }
+        }
+    </script>
+</body>
+</html>
