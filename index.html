@@ -994,7 +994,7 @@ Siap mengeksekusi program. Tekan tombol "Jalankan Kode" di atas!
                     <p class="text-xs text-slate-400 mt-1">Masukkan PIN Otentikasi Guru untuk membuka rekapitulasi.</p>
                 </div>
                 <div class="space-y-3">
-                    <input type="password" id="inputTeacherPin" placeholder="PIN Guru (Default: 1234)" class="w-full bg-slate-950 border border-slate-700 text-center font-mono text-lg tracking-widest text-white rounded-xl py-2.5 focus:outline-none focus:border-emerald-500">
+                    <input type="password" id="inputTeacherPin" placeholder="PIN Guru...." class="w-full bg-slate-950 border border-slate-700 text-center font-mono text-lg tracking-widest text-white rounded-xl py-2.5 focus:outline-none focus:border-emerald-500">
                     <p id="pinErrorMessage" class="text-xs text-rose-400 hidden font-semibold"></p>
                     <button onclick="verifyTeacherPin()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-semibold py-2.5 rounded-xl transition">
                         Buka Dasbor Guru
@@ -1328,7 +1328,7 @@ Siap mengeksekusi program. Tekan tombol "Jalankan Kode" di atas!
             const pin = document.getElementById('inputTeacherPin').value;
             const err = document.getElementById('pinErrorMessage');
 
-            if (pin === "1234") {
+            if (pin === "3443") {
                 err.classList.add('hidden');
                 document.getElementById('teacherPinScreen').classList.add('hidden');
                 document.getElementById('teacherDashboardContent').classList.remove('hidden');
